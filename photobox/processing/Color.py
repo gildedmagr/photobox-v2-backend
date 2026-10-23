@@ -7,7 +7,16 @@ class Color:
 
     @staticmethod
     def auto_contrast(img: Image):
-        return ImageOps.autocontrast(img, cutoff=3, ignore=0)
+        if img.mode in ("RGB", "L"):
+            return ImageOps.autocontrast(img, cutoff=3, ignore=0)
+
+        if img.mode in ("RGBA", "LA", "P", "PA"):
+            rgba = img.convert("RGBA")
+            result = ImageOps.autocontrast(rgba.convert("RGB"), cutoff=3, ignore=0)
+            result.putalpha(rgba.getchannel("A"))
+            return result
+
+        return ImageOps.autocontrast(img.convert("RGB"), cutoff=3, ignore=0)
 
     @staticmethod
     def adjust_color(img: Image, params: ColorSettings):
